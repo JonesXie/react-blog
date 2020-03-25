@@ -1,0 +1,7 @@
+{
+  "extends": "eslint-config-egg",
+  "rules": {
+    "quotes": "off",
+    "comma-dangle": "off"
+  }
+}
