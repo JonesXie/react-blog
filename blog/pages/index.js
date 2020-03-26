@@ -7,39 +7,10 @@ import "../static/style/pages/index.css";
 import Author from "../components/Author";
 import Advert from "../components/Advert";
 import Footer from "../components/Footer";
-const Home = () => {
-  const [list, setList] = useState([
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    }
-  ]);
+import axios from "axios";
+import Link from "next/link";
+const Home = propsList => {
+  const [list, setList] = useState(propsList.data);
   return (
     <>
       <Head>
@@ -54,19 +25,23 @@ const Home = () => {
             dataSource={list}
             renderItem={item => (
               <List.Item>
-                <div className="list-title">{item.title}</div>
+                <Link href={{ pathname: "/details", query: { id: item.id } }}>
+                  <a>
+                    <div className="list-title">{item.title}</div>
+                  </a>
+                </Link>
                 <div className="list-icon">
                   <span>
-                    <CalendarOutlined /> 2020-03-20
+                    <CalendarOutlined /> {item.addTime}
                   </span>
                   <span>
-                    <FolderAddFilled /> 视频教程
+                    <FolderAddFilled /> {item.typeName}
                   </span>
                   <span>
-                    <FireOutlined /> 6666人
+                    <FireOutlined /> {item.view_count}人
                   </span>
                 </div>
-                <div className="list-context">{item.context}</div>
+                <div className="list-context">{item.introduce}</div>
               </List.Item>
             )}
           />
@@ -79,6 +54,16 @@ const Home = () => {
       <Footer />
     </>
   );
+};
+
+Home.getInitialProps = async () => {
+  const promise = new Promise(resolve => {
+    axios.get("http://127.0.0.1:7001/default/index").then(res => {
+      resolve(res.data);
+    });
+  });
+
+  return await promise;
 };
 
 export default Home;

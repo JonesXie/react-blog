@@ -8,6 +8,7 @@ import Author from "../components/Author";
 import Advert from "../components/Advert";
 import Footer from "../components/Footer";
 import MarkDown from "react-markdown";
+import axios from "axios";
 const Details = () => {
   let markdown =
     "# P01:课程介绍和环境搭建\n" +
@@ -85,6 +86,16 @@ const Details = () => {
       <Footer />
     </>
   );
+};
+Details.getInitialProps = async content => {
+  let id = content.query.id;
+  const promise = new Promise(resolve => {
+    axios.get("http://127.0.0.1:7001/default/details/" + id).then(res => {
+      resolve(res.data);
+    });
+  });
+
+  return await promise;
 };
 
 export default Details;
