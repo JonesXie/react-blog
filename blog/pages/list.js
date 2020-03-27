@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Header from "../components/Header";
 import { Row, Col, List, Breadcrumb } from "antd";
@@ -6,39 +6,15 @@ import { CalendarOutlined, FolderAddFilled, FireOutlined } from "@ant-design/ico
 import Author from "../components/Author";
 import Advert from "../components/Advert";
 import Footer from "../components/Footer";
-const MyList = () => {
-  const [list, setList] = useState([
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    },
-    {
-      title: "我是博客的title",
-      context:
-        "我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context,我是博客的context"
-    }
-  ]);
+import axios from "axios";
+import Link from "next/link";
+import requestUrl from "../config/apiUrl";
+
+const MyList = props => {
+  const [list, setList] = useState(props.data);
+  useEffect(() => {
+    setList(props.data);
+  });
   return (
     <>
       <Head>
@@ -62,16 +38,16 @@ const MyList = () => {
                 <div className="list-title">{item.title}</div>
                 <div className="list-icon">
                   <span>
-                    <CalendarOutlined /> 2020-03-20
+                    <CalendarOutlined /> {item.addTime}
                   </span>
                   <span>
-                    <FolderAddFilled /> 视频教程
+                    <FolderAddFilled /> {item.typeName}
                   </span>
                   <span>
-                    <FireOutlined /> 6666人
+                    <FireOutlined /> {item.view_count}人
                   </span>
                 </div>
-                <div className="list-context">{item.context}</div>
+                <div className="list-context">{item.introduce}</div>
               </List.Item>
             )}
           />
@@ -84,6 +60,15 @@ const MyList = () => {
       <Footer />
     </>
   );
+};
+MyList.getInitialProps = async context => {
+  let id = context.query.id;
+  const promise = new Promise(resolve => {
+    axios.get(requestUrl.list + id).then(res => {
+      resolve(res.data);
+    });
+  });
+  return await promise;
 };
 
 export default MyList;

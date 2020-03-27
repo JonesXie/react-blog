@@ -9,6 +9,8 @@ import Advert from "../components/Advert";
 import Footer from "../components/Footer";
 import axios from "axios";
 import Link from "next/link";
+import requestUrl from "../config/apiUrl";
+
 const Home = propsList => {
   const [list, setList] = useState(propsList.data);
   return (
@@ -58,7 +60,7 @@ const Home = propsList => {
 
 Home.getInitialProps = async () => {
   const promise = new Promise(resolve => {
-    axios.get("http://127.0.0.1:7001/default/index").then(res => {
+    axios.get(requestUrl.index).then(res => {
       resolve(res.data);
     });
   });
