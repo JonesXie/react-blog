@@ -34,7 +34,7 @@ const Login = props => {
         withCredentials: true
       }).then(res => {
         setisLoading(false);
-        if (res.data.data == "登录成功") {
+        if (res.data.data === "登录成功") {
           localStorage.setItem("openId", res.data.openId);
           props.history.push("/index");
         } else {

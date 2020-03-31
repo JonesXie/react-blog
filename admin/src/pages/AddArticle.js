@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../static/css/AddArtitcle.css";
-import { Row, Col, Input, Button, Select, DatePicker } from "antd";
+import { Row, Col, Input, Button, Select, DatePicker, message } from "antd";
 import marked from "marked";
-
+import axios from "axios";
+import servicePath from "../config/apiUrl";
+// import {Rro} from "react-router-dom"
 const { TextArea } = Input;
 const { Option } = Select;
 
-function AddArtitcle() {
+function AddArtitcle(props) {
   const [articleId, setArticleId] = useState(0); // 文章的ID，如果是0说明是新增加，如果不是0，说明是修改
   const [articleTitle, setArticleTitle] = useState(""); //文章标题
   const [articleContent, setArticleContent] = useState(""); //markdown的编辑内容
@@ -14,9 +16,22 @@ function AddArtitcle() {
   const [introducemd, setIntroducemd] = useState(); //简介的markdown内容
   const [introducehtml, setIntroducehtml] = useState("等待编辑"); //简介的html内容
   const [showDate, setShowDate] = useState(); //发布日期
-  const [updateDate, setUpdateDate] = useState(); //修改日志的日期
   const [typeInfo, setTypeInfo] = useState([]); // 文章类别信息
-  const [selectedType, setSelectType] = useState(1); //选择的文章类别
+  const [selectedType, setSelectedType] = useState("选择类别"); //选择的文章类别
+  useEffect(() => {
+    axios({
+      method: "GET",
+      withCredentials: true,
+      url: servicePath.getTypeInfo
+    }).then(res => {
+      if (res.data.data === "你尚未登录") {
+        localStorage.removeItem("openId");
+        props.history.push("/");
+      } else {
+        setTypeInfo(res.data.data);
+      }
+    });
+  }, []);
   marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -40,18 +55,94 @@ function AddArtitcle() {
     if (html) setIntroducehtml(html);
     else setIntroducehtml("等待编辑");
   };
+  const saveArticle = () => {
+    if (!articleTitle) {
+      message.error("文章标题不能为空");
+      return false;
+    } else if (!articleContent) {
+      message.error("文章内容不能为空");
+      return false;
+    } else if (!introducemd) {
+      message.error("文章简介不能为空");
+      return false;
+    } else if (!showDate) {
+      message.error("发布日期不能为空");
+      return false;
+    } else if (!selectedType || selectedType === "选择类别") {
+      message.error("文章类别不能为空");
+      return false;
+    }
+
+    let tmpData = {
+      type_id: selectedType,
+      title: articleTitle,
+      article_content: articleContent,
+      introduce: introducemd,
+      addTime: new Date(showDate.replace("-", "/")).getTime() / 1000,
+      view_count: Math.ceil(Math.random() * 100)
+    };
+    if (articleId === 0) {
+      axios({
+        method: "POST",
+        withCredentials: true,
+        url: servicePath.addArticle,
+        data: tmpData
+      }).then(res => {
+        setArticleId(res.data.insertId);
+        if (res.data.isSuccess) {
+          message.success("文章添加成功");
+        } else {
+          message.error("文章添加失败");
+        }
+      });
+    } else {
+      tmpData.id = articleId;
+      axios({
+        method: "POST",
+        withCredentials: true,
+        url: servicePath.updateArticle,
+        data: tmpData
+      }).then(res => {
+        if (res.data.isSuccess) {
+          message.success("文章保存成功");
+        } else {
+          message.error("文章保存失败");
+        }
+      });
+    }
+  };
   return (
     <div>
       <Row gutter={5}>
         <Col span={18}>
           <Row>
             <Col span={20}>
-              <Input placeholder="文章标题" size="large" />
+              <Input
+                placeholder="文章标题"
+                size="large"
+                value={articleTitle}
+                onChange={e => {
+                  setArticleTitle(e.target.value);
+                }}
+              />
             </Col>
             <Col span={4}>
               &nbsp;
-              <Select defaultValue="1" size="large">
-                <Option value="1">react</Option>
+              <Select
+                defaultValue={selectedType}
+                size="large"
+                style={{ width: 120 }}
+                onChange={value => {
+                  setSelectedType(value);
+                }}
+              >
+                {typeInfo.map((item, index) => {
+                  return (
+                    <Option key={index} value={item.Id}>
+                      {item.typeName}
+                    </Option>
+                  );
+                })}
               </Select>
             </Col>
           </Row>
@@ -76,7 +167,7 @@ function AddArtitcle() {
             <Col span={24}>
               <Button size="large">暂存文章</Button>
               &nbsp; &nbsp;
-              <Button size="large" type="primary">
+              <Button size="large" type="primary" onClick={saveArticle}>
                 保存文章
               </Button>
             </Col>
@@ -91,7 +182,13 @@ function AddArtitcle() {
 
             <Col span={24}>
               <div className="date-select">
-                <DatePicker placeholder="发布日期" size="large" />
+                <DatePicker
+                  placeholder="发布日期"
+                  size="large"
+                  onChange={(data, dataString) => {
+                    setShowDate(dataString);
+                  }}
+                />
               </div>
             </Col>
           </Row>
