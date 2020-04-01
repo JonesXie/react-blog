@@ -19,19 +19,28 @@ function AddArtitcle(props) {
   const [typeInfo, setTypeInfo] = useState([]); // 文章类别信息
   const [selectedType, setSelectedType] = useState("选择类别"); //选择的文章类别
   useEffect(() => {
+    getArticleList();
+    let tmpId = props.match.params.id;
+    if (tmpId) {
+      setArticleId(tmpId);
+      getArticleById(tmpId);
+    }
+  }, []);
+  const getArticleList = () => {
     axios({
       method: "GET",
       withCredentials: true,
       url: servicePath.getTypeInfo
     }).then(res => {
       if (res.data.data === "你尚未登录") {
+        message.error(res.data.data);
         localStorage.removeItem("openId");
-        props.history.push("/");
+        props.history.push("/login");
       } else {
         setTypeInfo(res.data.data);
       }
     });
-  }, []);
+  };
   marked.setOptions({
     renderer: new marked.Renderer(),
     gfm: true,
@@ -42,6 +51,23 @@ function AddArtitcle(props) {
     smartLists: true,
     smartypants: false
   });
+  const getArticleById = id => {
+    axios(servicePath.getArticleById + id, {
+      withCredentials: true,
+      header: { "Access-Control-Allow-Origin": "*" }
+    }).then(res => {
+      //let articleInfo= res.data.data[0]
+      setArticleTitle(res.data.data[0].title);
+      setArticleContent(res.data.data[0].article_content);
+      let html = marked(res.data.data[0].article_content);
+      setMarkdownContent(html);
+      setIntroducemd(res.data.data[0].introduce);
+      let tmpInt = marked(res.data.data[0].introduce);
+      setIntroducehtml(tmpInt);
+      setShowDate(res.data.data[0].addTime);
+      setSelectedType(res.data.data[0].typeId);
+    });
+  };
   const changeContent = e => {
     setArticleContent(e.target.value);
     let html = marked(e.target.value);
@@ -155,6 +181,7 @@ function AddArtitcle(props) {
                 placeholder="文章内容"
                 onChange={changeContent}
                 onPressEnter={changeContent}
+                value={articleContent}
               />
             </Col>
             <Col span={12}>
@@ -174,7 +201,13 @@ function AddArtitcle(props) {
             <br />
             <br />
             <Col span={24}>
-              <TextArea rows={4} placeholder="文章简介" onChange={changeIntroduce} onPressEnter={changeIntroduce} />
+              <TextArea
+                rows={4}
+                value={introducemd}
+                placeholder="文章简介"
+                onChange={changeIntroduce}
+                onPressEnter={changeIntroduce}
+              />
               <br />
               <br />
               <div className="introduce-html" dangerouslySetInnerHTML={{ __html: introducehtml }}></div>

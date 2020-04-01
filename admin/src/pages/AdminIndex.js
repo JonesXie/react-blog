@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import "../static/css/AdminIndex.css";
 import { Layout, Menu, Breadcrumb } from "antd";
-import { DesktopOutlined, PieChartOutlined, FileOutlined, UserOutlined } from "@ant-design/icons";
+import { DesktopOutlined, PieChartOutlined, FileOutlined } from "@ant-design/icons";
 import { Route } from "react-router-dom";
 import AddArticle from "./AddArticle.js";
 import ArticleList from "./ArticleList.js";
 const { Content, Footer, Sider } = Layout;
-const { SubMenu } = Menu;
+// const { SubMenu } = Menu;
 
 function AdminIndex(props) {
   const [collapsed, setCollapsed] = useState(false);
@@ -16,10 +16,10 @@ function AdminIndex(props) {
   };
 
   const handleClickArticle = e => {
-    if (e.key == "addArticle") {
-      props.history.push("/add/");
+    if (e.key === "addArticle") {
+      props.history.push("/index/add");
     } else {
-      props.history.push("/list/");
+      props.history.push("/index");
     }
   };
 
@@ -27,16 +27,16 @@ function AdminIndex(props) {
     <Layout style={{ minHeight: "100vh" }}>
       <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
         <div className="logo" />
-        <Menu theme="dark" defaultSelectedKeys={["addArticle"]} mode="inline">
-          <Menu.Item key="1">
+        <Menu theme="dark" defaultSelectedKeys={["articleList"]} mode="inline">
+          <Menu.Item key="articleList" onClick={handleClickArticle}>
             <PieChartOutlined />
             <span>工作台</span>
           </Menu.Item>
-          <Menu.Item key="2">
+          <Menu.Item key="addArticle" onClick={handleClickArticle}>
             <DesktopOutlined />
             <span>添加文章</span>
           </Menu.Item>
-          <SubMenu
+          {/* <SubMenu
             key="sub1"
             onClick={handleClickArticle}
             title={
@@ -48,7 +48,7 @@ function AdminIndex(props) {
           >
             <Menu.Item key="addArticle">添加文章</Menu.Item>
             <Menu.Item key="articleList">文章列表</Menu.Item>
-          </SubMenu>
+          </SubMenu> */}
           <Menu.Item key="9">
             <FileOutlined />
             <span>留言管理</span>
@@ -62,10 +62,9 @@ function AdminIndex(props) {
             <Breadcrumb.Item>工作台</Breadcrumb.Item>
           </Breadcrumb>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            <Route path="/" exact component={AddArticle} />
-            <Route path="/add/" exact component={AddArticle} />
-            <Route path="/add/:id" exact component={AddArticle} />
-            <Route path="/list/" component={ArticleList} />
+            <Route path="/index" exact component={ArticleList} />
+            <Route path="/index/add" exact component={AddArticle} />
+            <Route path="/index/add/:id" exact component={AddArticle} />
           </div>
         </Content>
         <Footer style={{ textAlign: "center" }}>Jonesxie Blog</Footer>

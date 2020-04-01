@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "../static/css/ArticleList.css";
-import { List, Row, Col, Modal, message, Button, Switch } from "antd";
+import { List, Row, Col, Modal, message, Button } from "antd";
 import axios from "axios";
 import servicePath from "../config/apiUrl";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 const { confirm } = Modal;
 
 function ArticleList(props) {
@@ -13,7 +14,27 @@ function ArticleList(props) {
       url: servicePath.getArticleList,
       withCredentials: true
     }).then(res => {
-      setList(res.data.list);
+      if (res.data.data === "你尚未登录") {
+        message.error(res.data.data);
+        localStorage.removeItem("openId");
+        props.history.push("/login");
+      } else {
+        setList(res.data.list);
+      }
+    });
+  };
+  const delArticle = id => {
+    confirm({
+      title: "删除此文章?",
+      icon: <ExclamationCircleOutlined />,
+      content: "此操作不可逆，谨慎操作!",
+      onOk() {
+        axios(servicePath.delArticle + id, { withCredentials: true }).then(res => {
+          getList();
+          message.success("文章删除成功");
+        });
+      },
+      onCancel() {}
     });
   };
   useEffect(() => {
@@ -59,8 +80,22 @@ function ArticleList(props) {
               <Col span={3}>{item.view_count}</Col>
 
               <Col span={4}>
-                <Button type="primary">修改</Button>&nbsp;
-                <Button>删除 </Button>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    props.history.push("/index/add/" + item.id);
+                  }}
+                >
+                  修改
+                </Button>
+                &nbsp;
+                <Button
+                  onClick={() => {
+                    delArticle(item.id);
+                  }}
+                >
+                  删除{" "}
+                </Button>
               </Col>
             </Row>
           </List.Item>

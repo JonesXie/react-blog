@@ -4,7 +4,9 @@ const service = {
   getTypeInfo: baseUrl + "/admin/getTypeInfo",
   addArticle: baseUrl + "/admin/addArticle",
   updateArticle: baseUrl + "/admin/updateArticle",
-  getArticleList: baseUrl + "/admin/getArticleList"
+  getArticleList: baseUrl + "/admin/getArticleList",
+  delArticle: baseUrl + "/admin/delArticle/",
+  getArticleById: baseUrl + "/admin/getArticleById/"
 };
 
 export default service;
